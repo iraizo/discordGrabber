@@ -26,7 +26,7 @@ std::wstring GetProcName(DWORD aPid)
         }
 
     }
-    std::wcout << "no process with given pid" << aPid;
+    std::wcout << "no process with given pid (" << aPid << ")" << std::endl;
     CloseHandle(processesSnapshot);
     return std::wstring();
 }
@@ -53,7 +53,7 @@ DWORD getParentPID(DWORD pid)
     return (ppid);
 }
 
-void procManager::findProc(DWORD processID)
+void procManager::findProc(uint32_t processID)
 {
     TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
 
@@ -112,6 +112,46 @@ void procManager::findProc(DWORD processID)
     return;
 
 }
+
+uint32_t GetProcessBaseAddress(DWORD processID)
+{
+    uint32_t   baseAddress = 0;
+    HANDLE      processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
+    HMODULE* moduleArray;
+    LPBYTE      moduleArrayBytes;
+    DWORD       bytesRequired;
+
+    if (processHandle)
+    {
+        if (EnumProcessModules(processHandle, NULL, 0, &bytesRequired))
+        {
+            if (bytesRequired)
+            {
+                moduleArrayBytes = (LPBYTE)LocalAlloc(LPTR, bytesRequired);
+
+                if (moduleArrayBytes)
+                {
+                    unsigned int moduleCount;
+                     
+                    moduleCount = bytesRequired / sizeof(HMODULE);
+                    moduleArray = (HMODULE*)moduleArrayBytes;
+
+                    if (EnumProcessModules(processHandle, moduleArray, bytesRequired, &bytesRequired))
+                    {
+                        baseAddress = (uint32_t)moduleArray[0];
+                    }
+
+                    LocalFree(moduleArrayBytes);
+                }
+            }
+        }
+
+        CloseHandle(processHandle);
+    }
+
+    return baseAddress;
+}
+
 discordInformation procManager::scan() {
     // save information in discordInformation type
     discordInformation account;
@@ -173,7 +213,7 @@ discordInformation procManager::scan() {
 
     // get base address (probaly not needed)
     //char* base = (char*)GetProcessBaseAddress(procInfo.pid);
-    char* base = (char*)0x7b0000;
+    char* base = (char*)GetProcessBaseAddress(procInfo.pid);
 
     std::cout << "[+] Reading .text section into buffer.." << std::endl;
     std::cout << "[+] Scanning.." << std::endl;

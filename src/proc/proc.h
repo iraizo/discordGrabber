@@ -50,12 +50,7 @@ private:
 	// discord versions can change anytime
 	std::vector<std::wstring> versions = {L"DiscordPTB.exe", L"Discord.exe", L"DiscordDev.exe", L"DiscordCanary.exe"};
 
-
-	// save handle or whatever later on
 public:
-	// Purpose in proc.cpp
-	void findProc(DWORD processID);
+	void findProc(uint32_t processID);
 	discordInformation scan();
-	void getModuleWithPeb(HANDLE hproc);
-	PEB getPEB(HANDLE hProc);
 };	
