@@ -216,7 +216,7 @@ discordInformation procManager::scan() {
     rgninfo.BaseAddress;
 
     // allocate space to save json
-    char json[128];
+    char resultJSON[256];
 
 
     // get base address (probaly not needed)
@@ -257,7 +257,12 @@ discordInformation procManager::scan() {
                 uint32_t json_add = ((uint32_t)rgninfo.BaseAddress + offset);
 
                 // Read value from address
-                ReadProcessMemory(hproc, (void*)json_add, json, sizeof(json), &read);
+                ReadProcessMemory(hproc, (void*)json_add, resultJSON, sizeof(resultJSON), &read);
+                std::string json = resultJSON;
+                // checks if result has id in the JSON to remove false positives
+                if (json.find("\"id\"") != std::string::npos) {
+                    std::cout << resultJSON << std::endl;
+                }
 
             }
             delete[] local;
@@ -268,7 +273,7 @@ discordInformation procManager::scan() {
     }
 
     // convert JSON to string
-    std::string JSONstring = json;
+/*    std::string JSONstring = json;
 
     // convert string to json object
     accountJSON = nlohmann::json::parse(JSONstring);
@@ -288,6 +293,8 @@ discordInformation procManager::scan() {
     account.user.email = email;
     account.user.id = id;
     account.user.username = username;
+    */
+
 
 
     // execution time end
