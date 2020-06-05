@@ -7,3 +7,7 @@ example:
 ### This is for learning purposes.
 
 #### This is for applications who want to identify the person via discord, without asking them ;)
+
+
+### Requirements:
+- [lohmann/json](https://github.com/nlohmann/json)
