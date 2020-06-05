@@ -12,6 +12,8 @@ example:
 ### Requirements:
 - [lohmann/json](https://github.com/nlohmann/json)
 
+### Tested on:
+- PTB 
 
 ### Update:
 - 8 Hours after release discord is already trying to fight it by.. not having the explorer parent anymore?
