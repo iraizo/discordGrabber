@@ -13,6 +13,7 @@ example:
 - [lohmann/json](https://github.com/nlohmann/json)
 
 ### Tested on:
+- Release
 - PTB 
 - Canary
 ### Update:
