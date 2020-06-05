@@ -1,7 +1,8 @@
 # discordGrabber
 grabs userid username and build info off discord.
 
-example: `{release":"0.0.52","user":{"email":"censored@gmail.com","id":"55278871908739249","username":"censored"}}`
+example: 
+`{"environment":"ptb","release":"0.0.52","user":{"email":"censored@gmail.com","id":"55278871908739249","username":"censored"}}`
 
 ### This is for learning purposes.
 
