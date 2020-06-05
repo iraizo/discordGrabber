@@ -7,7 +7,6 @@
 #include <string>
 #include <TlHelp32.h>
 #include <iostream>
-#include "../ntdll.h"
 #include <chrono>
 #include <nlohmann/json.hpp>
 
