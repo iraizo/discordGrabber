@@ -132,7 +132,6 @@ uint32_t GetProcessBaseAddress(DWORD processID)
                 if (moduleArrayBytes)
                 {
                     unsigned int moduleCount;
-                     
                     moduleCount = bytesRequired / sizeof(HMODULE);
                     moduleArray = (HMODULE*)moduleArrayBytes;
 
@@ -285,11 +284,12 @@ discordInformation procManager::scan() {
     /*
      DEBUG
     */
+    
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     /*
-    std::cout << "[+] Output: " << JSONstring << std::endl;
+    std::cout << "[+] Output: " << JSONstring << std::endl;*/
     std::cout << "[+] Done in " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << "ms" << std::endl;
-    */
+    
 
 
     // close handle
