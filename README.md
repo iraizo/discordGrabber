@@ -11,3 +11,8 @@ example:
 
 ### Requirements:
 - [lohmann/json](https://github.com/nlohmann/json)
+
+
+### Update:
+- 8 Hours after release discord is already trying to fight it by.. not having the explorer parent anymore?
+  Fixed it by just checking if the wstring of the parent is empty.
