@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{8ce49910-70f7-4b81-9266-0fdffc2ae49e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="example">
+      <UniqueIdentifier>{88bd72cb-e21c-43a7-989e-c1d38818736e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\scanner">
+      <UniqueIdentifier>{1f0c3ad0-9bd5-4a1d-bd82-4a1fbed919a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\proc">
+      <UniqueIdentifier>{9c4b91c3-2bee-4bad-bd3f-4fe8f38ca68b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\example\main.cpp">
+      <Filter>example</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scanner\scan.cpp">
+      <Filter>src\scanner</Filter>
+    </ClCompile>
+    <ClCompile Include="src\proc\proc.cpp">
+      <Filter>src\proc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\scanner\scan.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ntdll.h">
+      <Filter>src\scanner</Filter>
+    </ClInclude>
+    <ClInclude Include="src\proc\proc.h">
+      <Filter>src\proc</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
