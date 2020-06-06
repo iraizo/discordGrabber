@@ -1,6 +1,12 @@
 # discordGrabber
 Grabs user information like username userid token email etc. 
 
+<img src="https://jelbrek.icu/kb3x691m.png">
+
+#### This is for applications who want to identify the person via discord, without asking them ;)
+
+Grabs user information like username userid token email etc. 
+
 ### Requirements:
 - [lohmann/json](https://github.com/nlohmann/json)
 

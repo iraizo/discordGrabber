@@ -29,6 +29,7 @@ struct user {
 	std::string email;
 	std::string id;
 	std::string username;
+	std::string token;
 };
 
 struct discordInformation {
