@@ -155,6 +155,7 @@ uint32_t GetProcessBaseAddress(DWORD processID)
             }
         }
 
+        // release handle of process
         CloseHandle(processHandle);
     }
 
