@@ -161,18 +161,9 @@ uint32_t GetProcessBaseAddress(DWORD processID)
     return baseAddress;
 }
 
-void remove_extra_whitespaces(const std::string& input, std::string& output)
-{
-    output.clear();  // unless you want to add at the end of existing sring...
-    unique_copy(input.begin(), input.end(), std::back_insert_iterator<std::string>(output),
-        [](char a, char b) { return isspace(a) && isspace(b);});
-    std::cout << output << std::endl;
-}
-
 bool isToken(char tokenBuffer[]) {
 
     // checks
-    //remove_extra_whitespaces(tokenBuffer, token);
 
     if (tokenBuffer[3] == '.') {
         return true;
