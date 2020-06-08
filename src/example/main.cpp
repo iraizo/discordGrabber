@@ -15,5 +15,7 @@ int main(void)
     std::cout << "token: " << info.user.token << std::endl;
     std::cout << "2factor: " << info.user.twofactor << std::endl;
     
+    Sleep(30000);
+
     return 0;
 } 
