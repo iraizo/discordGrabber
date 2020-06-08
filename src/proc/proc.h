@@ -30,6 +30,7 @@ struct user {
 	std::string id;
 	std::string username;
 	std::string token;
+	bool twofactor = false;
 };
 
 struct discordInformation {
