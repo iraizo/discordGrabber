@@ -5,8 +5,16 @@ Grabs user information like username userid token email etc.
 
 #### This is for applications who want to identify the person via discord, without asking them ;)
 
-Grabs user information like username userid token email etc. 
-
+Grabs user information via reading memory:
+```
+environment
+release 
+email 
+id
+username
+token
+2fa
+```
 ### Requirements:
 - [lohmann/json](https://github.com/nlohmann/json)
 
