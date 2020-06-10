@@ -7,13 +7,13 @@ Grabs user information like username userid token email etc.
 
 Grabs user information via reading memory:
 ```
-environment
-release 
-email 
-id
-username
-token
-2fa
+environment - string
+release - string
+email - string
+id - string
+username - string
+token - string
+2fa - bool
 ```
 ### Requirements:
 - [lohmann/json](https://github.com/nlohmann/json)
