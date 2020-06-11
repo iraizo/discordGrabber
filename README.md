@@ -21,7 +21,7 @@ token - string
 ### Tested on:
 - Release
 - PTB 
-- Canary
+- Canary - Buggy.
 ### Update:
 - 8 Hours after release discord is already trying to fight it by.. not having the explorer parent anymore?
   Fixed it by just checking if the wstring of the parent is empty.
