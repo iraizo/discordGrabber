@@ -27,3 +27,4 @@ token - string
   Fixed it by just checking if the wstring of the parent is empty.
 - A bug occured where the parents of all processes were discord(...).exe 
   which wasnt true when looked at in process hacker 2.
+- Death of the project: discord deleted the json and i cant find any email/userid or anything that is static in memory.
