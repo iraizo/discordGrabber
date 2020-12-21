@@ -16,7 +16,7 @@ token - string
 2fa - bool
 ```
 ### Requirements:
-- [lohmann/json](https://github.com/nlohmann/json)
+- [nlohmann/json](https://github.com/nlohmann/json)
 
 ### Tested on:
 - Release - Everything works fine.
